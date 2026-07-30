@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 
 const app = express()
 
+// credential-like username +password can be allowed to access them .
 app.use(cors({
   origin: process.env.CORS_ORGIN,
   Credential:true

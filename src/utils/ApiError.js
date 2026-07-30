@@ -6,6 +6,7 @@ class ApiError extends Error{
     stack=""
 
   ) {
+    // super - those keyword is used to the child can access for the parent data 
     super(message)
     this.statusCode = statusCode
     this.data = null
@@ -13,6 +14,7 @@ class ApiError extends Error{
     this.success = false
     this.errors = this.errors
     
+    // capturestacktrace - start the error and trace the point of error and unneccessary function calls. 
     if (stack) {
       this.stack = stack
     } else {
