@@ -26,6 +26,7 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.8.0",
     "mongoose-aggregate-paginate-v2": "^1.1.4",
+    "multer": "^2.2.0",
     "path": "^0.12.7",
     "prettier": "^3.9.6"
   }
