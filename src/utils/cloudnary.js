@@ -24,7 +24,7 @@ import { v2 as cloudinary } from "cloudinary";
       
     } catch (error) {
       fs.unlinkSync(localfilepath) // remove local file as upload operation to got failed
-      retutn null;
+      return  null;
       
     }
   
