@@ -1,7 +1,8 @@
 import { ApiError } from "../utils/ApiError.js";
 import { asynchandler } from "../utils/async_handler.js";
 import { User } from "../model/usermodel.js"
-import {uploadcloudnary} from "../utils/cloudnary"
+import { uploadcloudnary } from "../utils/cloudnary"
+import { Apirsponse } from "../utils/apiresponse.js";
 
 const registerUser = asynchandler(async (req, res) => {
   // create user
@@ -63,10 +64,30 @@ const registerUser = asynchandler(async (req, res) => {
   const avatar = await uploadcloudnary(avatarLocalPath)
   const image = await uploadcloudnary(coverImage)
   
-    if (!avatar) {
-    throw new ApiError(400 , "avatar file is required ")
+  if (!avatar) {
+    throw new ApiError(400, "avatar file is required ")
 
+  }
+  const user=await User.create({
+    fullname,
+    avatar: avatar.url,
+    coverImage: coverImage?.url || "",
+    email,
+    password,
+    username:username.toLowerCase()
+    
+  })
 
+  const createuser = await User.findById(user._id).select(
+    "-password -Refresh_token"
+  );
+
+  if (!createuser) {
+    throw new ApiError(500,"something is wrong ")
+  }
+  return res.status(201).json(
+    new Apirsponse(200,createuser,"user registered successfully")
+  )
 });
 
 
