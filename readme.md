@@ -100,15 +100,15 @@ npm start
 
 # 📂 Folder Explanation
 
-| Folder | Purpose |
-|---------|----------|
-| db | Database connection |
-| controllers | Request handling logic |
-| middlewares | Authentication, validation, etc. |
-| models | Mongoose schemas |
-| routes | API endpoints |
-| utils | Reusable helper classes/functions |
-| public | Static assets |
+| Folder      | Purpose                           |
+| ----------- | --------------------------------- |
+| db          | Database connection               |
+| controllers | Request handling logic            |
+| middlewares | Authentication, validation, etc.  |
+| models      | Mongoose schemas                  |
+| routes      | API endpoints                     |
+| utils       | Reusable helper classes/functions |
+| public      | Static assets                     |
 
 ---
 
@@ -135,9 +135,9 @@ Creates standardized success responses.
 Example:
 
 ```javascript
-return res.status(200).json(
-    new ApiResponse(200, user, "User fetched successfully")
-);
+return res
+  .status(200)
+  .json(new ApiResponse(200, user, "User fetched successfully"));
 ```
 
 ---
