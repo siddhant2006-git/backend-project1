@@ -38,7 +38,7 @@ const registerUser = asynchandler(async (req, res) => {
   // Avatar local path
   const avatarLocalPath = avatarFile.path;
 
-  // Upload avatar to Cloudinary
+  
   const avatarUpload = await uploadcloudnary(avatarLocalPath);
 
   if (!avatarUpload?.url) {
@@ -86,3 +86,6 @@ const registerUser = asynchandler(async (req, res) => {
 });
 
 export { registerUser };
+
+  
+//hello 
