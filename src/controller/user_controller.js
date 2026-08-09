@@ -1,10 +1,10 @@
 import { ApiError } from "../utils/ApiError.js";
-import { asynchandler } from "../utils/async_handler.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../model/usermodel.js";
-import { uploadcloudnary } from "../utils/cloudnary.js";
-import { Apirsponse } from "../utils/apiresponse.js";
+import { uploadCloudinary } from "../utils/cloudinary.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 
-const registerUser = asynchandler(async (req, res) => {
+const registerUser = asyncHandler(async (req, res) => {
   const { fullname, username, email, password } = req.body;
 
   console.log("email:", email);
@@ -38,8 +38,7 @@ const registerUser = asynchandler(async (req, res) => {
   // Avatar local path
   const avatarLocalPath = avatarFile.path;
 
-  
-  const avatarUpload = await uploadcloudnary(avatarLocalPath);
+  const avatarUpload = await uploadCloudinary(avatarLocalPath);
 
   if (!avatarUpload?.url) {
     throw new ApiError(400, "Avatar upload failed");
@@ -54,7 +53,7 @@ const registerUser = asynchandler(async (req, res) => {
   if (coverImageFile) {
     const coverImageLocalPath = coverImageFile.path;
 
-    coverImageUpload = await uploadcloudnary(coverImageLocalPath);
+    coverImageUpload = await uploadCloudinary(coverImageLocalPath);
 
     if (!coverImageUpload?.url) {
       throw new ApiError(400, "Cover image upload failed");
@@ -82,10 +81,7 @@ const registerUser = asynchandler(async (req, res) => {
 
   return res
     .status(201)
-    .json(new Apirsponse(201, createdUser, "User registered successfully"));
+    .json(new ApiResponse(201, createdUser, "User registered successfully"));
 });
 
 export { registerUser };
-
-  
-//hello 

@@ -1,28 +1,25 @@
-class ApiError extends Error{  
+class ApiError extends Error {
   constructor(
     statusCode,
-    message = "Somethings is wrong ",
+    message = "Something went wrong",
     errors = [],
-    stack=""
-
+    stack = ""
   ) {
-    // super - those keyword is used to the child can access for the parent data 
-    super(message)
-    this.statusCode = statusCode
-    this.data = null
-    this.message = message
-    this.success = false
-    this.errors = errors
-    
-    // capturestacktrace - start the error and trace the point of error and unneccessary function calls. 
+    // super - this keyword is used so the child can access the parent's data
+    super(message);
+    this.statusCode = statusCode;
+    this.data = null;
+    this.message = message;
+    this.success = false;
+    this.errors = errors;
+
+    // captureStackTrace - starts the error trace at this point and excludes unnecessary function calls.
     if (stack) {
-      this.stack = stack
+      this.stack = stack;
     } else {
-      Error.captureStackTrace(this,this,constructor)
-      
+      Error.captureStackTrace(this, this.constructor);
     }
-    }
-   }
+  }
+}
 
-
-export {ApiError}
+export { ApiError };
