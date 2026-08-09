@@ -50,11 +50,16 @@ const userSchema = new Schema(
     timestamps: true,
   }
 );
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+
+/*
+
+pre-save hook as async function (next) but still called next(). Mongoose treats an async middleware function as promise-based and never supplies a next callback so next was undefined, and every User.create()/.save() threw next is not a function → 500. Fixed by dropping the callback pattern and just returning from the async function.
+
+*/
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
 
   this.password = await bcrypt.hash(this.password, 10);
-  next();
 });
 
 userSchema.methods.isPasswordCorrect = async function (password) {
