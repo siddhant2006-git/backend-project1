@@ -12,7 +12,7 @@ class ApiError extends Error{
     this.data = null
     this.message = message
     this.success = false
-    this.errors = this.errors
+    this.errors = errors
     
     // capturestacktrace - start the error and trace the point of error and unneccessary function calls. 
     if (stack) {

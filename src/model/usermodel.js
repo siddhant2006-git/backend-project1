@@ -11,7 +11,7 @@ const userSchema = new Schema(
       trim: true,
       index: true,
     },
-    Email: {
+    email: {
       type: String,
       required: true,
       unique: true,
@@ -64,7 +64,7 @@ userSchema.methods.generate_aceesstoken = function () {
   return jwt.sign(
     {
       _id: this._id,
-      Email: this.Email,
+      email: this.email,
       username: this.username,
     },
     process.env.Access_token_Secret,
