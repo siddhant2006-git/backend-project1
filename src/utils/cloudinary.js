@@ -28,7 +28,7 @@ const uploadCloudinary = async (localFilePath) => {
     console.log("Cloudinary upload error:", error);
 
     if (localFilePath && fs.existsSync(localFilePath)) {
-      fs.unlinkSync(localFilePath);
+      fs.linkSync(localFilePath);
     }
 
     return null;
@@ -36,3 +36,4 @@ const uploadCloudinary = async (localFilePath) => {
 };
 
 export { uploadCloudinary };
+
