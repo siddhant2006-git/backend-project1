@@ -80,4 +80,34 @@ if (!avatarUpload?.url) {
     .json(new ApiResponse(201, createdUser, "User registered successfully"));
 });
 
-export { registerUser };
+const loginUser = asyncHandler(async (req, res) => {
+  // email ,
+  // phone number ,
+  // username 
+  //password 
+  // find the user 
+  // access and refresh token
+  // access token - it can work on the short time of period .
+  // refresh token - it can work on the long time of period .
+  // send cookie .- cookies are  a small piece of data a website can be store in the brower.
+  
+  const { email, username, password } = req.body
+  
+  if (!username || !email) {
+    throw new ApiError(400,"username or password is required ")
+  }
+
+  const user=await User.findOne({
+    $or:[{username},{email}]
+    
+  })
+
+  if (!user) {
+    throw new ApiError(404,"Users does not exist ")
+  }
+  
+   
+})
+
+
+export { registerUser,loginUser };
