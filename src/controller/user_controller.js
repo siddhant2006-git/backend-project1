@@ -4,6 +4,24 @@ import { User } from "../model/usermodel.js";
 import { uploadCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
+
+const generateAccessTokenandRefreshToken = async (user_id)=>{
+  try {
+    const user = await User.findById(user_id)
+    const accesstoken = user.
+      generateAccessToken
+    const refreshToken = user.generateRefreshToken
+    
+    user.refreshToken = refreshToken
+    await user.save({ validateNeforeSave: false })
+    
+    return {accesstoken ,refreshToken}
+
+  } catch (error) {
+    throw new ApiError(500,"something is wrong access and refresh token ")
+  }
+}
+
 const registerUser = asyncHandler(async (req, res) => {
   const { fullname, username, email, password } = req.body;
 
@@ -105,6 +123,16 @@ const loginUser = asyncHandler(async (req, res) => {
   if (!user) {
     throw new ApiError(404,"Users does not exist ")
   }
+
+  const ispasswordvalid = await user.isPasswordCorrect(password)
+  
+  if (!ispasswordvalid) {
+    throw new ApiError(401,"password is incoorect")
+  }
+
+  const { accesstoken, refreshToken } = await generateAccessTokenandRefreshToken(user_id)
+  
+  
   
    
 })
