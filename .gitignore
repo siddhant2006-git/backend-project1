@@ -3,4 +3,5 @@
 node_modules/
 dist/
 node_modules
-.postman
+.postman/
+postman/*.json
