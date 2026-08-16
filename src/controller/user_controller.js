@@ -5,15 +5,15 @@ import { uploadCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 
-const generateAccessTokenandRefreshToken = async (user_id)=>{
+const generateAccessTokenandRefreshToken = async (userId)=>{
   try {
-    const user = await User.findById(user_id)
+    const user = await User.findById(userId)
     const accesstoken = user.
-      generateAccessToken
-    const refreshToken = user.generateRefreshToken
+      generateAccessToken()
+    const refreshToken = user.generateRefreshToken()
     
     user.refreshToken = refreshToken
-    await user.save({ validateNeforeSave: false })
+    await user.save({ validateBeforeSave: false })
     
     return {accesstoken ,refreshToken}
 
@@ -115,6 +115,8 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(400,"username or password is required ")
   }
 
+  // findOne- to find the username and email .
+  
   const user=await User.findOne({
     $or:[{username},{email}]
     
@@ -124,13 +126,13 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(404,"Users does not exist ")
   }
 
-  const ispasswordvalid = await user.isPasswordCorrect(password)
+  const ispasswordvalid = await user.isPasswordCorrect(password);
   
   if (!ispasswordvalid) {
     throw new ApiError(401,"password is incoorect")
   }
 
-  const { accesstoken, refreshToken } = await generateAccessTokenandRefreshToken(user_id)
+  const { accesstoken, refreshToken } = await generateAccessTokenandRefreshToken(user._id)
 
   const loggInUser = await User.findById(user._id)
   select("-password -refreshToken")
@@ -142,7 +144,9 @@ const loginUser = asyncHandler(async (req, res) => {
 
   return
   res.status(200)
-    .cookie("accessToken", accesstoken, option).cookie("refreshToken", refreshToken, option).json(
+    .cookie("accessToken", accesstoken, option)
+    .cookie("refreshToken", refreshToken, option)
+    .json(
       new ApiResponse(
         200,
         {
@@ -161,6 +165,34 @@ const loginUser = asyncHandler(async (req, res) => {
 
 //middleware - 
 const logout = asyncHandler(async (req, res) => {
+  User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $set: {
+        refreshToken: undefined
+      }
+    },
+      {
+      new: true
+    }
+  )
+
+  
+      
+  const options = {
+    httpOnly: true,
+    secure:true
+  }
+  return res
+    .status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(new ApiResponse(200,{},"User loogedOut "))
+  
+  
+  
+  
+  
   
 })
 
