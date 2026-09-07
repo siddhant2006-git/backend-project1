@@ -20,10 +20,13 @@ const generateAccessTokenandRefreshToken = async (userId) => {
 };
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { fullname, username, email, password } = req.body;
-
-  console.log("email:", email);
-  console.log("fullname:", fullname);
+  const body = Object.fromEntries(
+    Object.entries(req.body).map(([key, value]) => [
+      key.trim(),
+      typeof value === "string" ? value.trim() : value,
+    ])
+  );
+  const { fullname, username, email, password } = body;
 
   // Check required fields
   if ([fullname, email, username, password].some((field) => !field?.trim())) {
@@ -106,8 +109,8 @@ const loginUser = asyncHandler(async (req, res) => {
 
   const { email, username, password } = req.body;
 
-  if (!username || !email) {
-    throw new ApiError(400, "username or password is required ");
+  if ((!username && !email) || !password) {
+    throw new ApiError(400, "username or email and password are required");
   }
 
   // findOne- to find the username and email .
@@ -129,19 +132,19 @@ const loginUser = asyncHandler(async (req, res) => {
   const { accesstoken, refreshToken } =
     await generateAccessTokenandRefreshToken(user._id);
 
-  const loggInUser = await User.findById(user._id);
-  select("-password -refreshToken");
+  const loggedInUser = await User.findById(user._id).select(
+    "-password -refreshToken"
+  );
 
   const options = {
     httpOnly: true,
     secure: true,
   };
 
-  return;
-  res
+  return res
     .status(200)
-    .cookie("accessToken", accesstoken, option)
-    .cookie("refreshToken", refreshToken, option)
+    .cookie("accessToken", accesstoken, options)
+    .cookie("refreshToken", refreshToken, options)
     .json(
       new ApiResponse(
         200,
@@ -157,7 +160,7 @@ const loginUser = asyncHandler(async (req, res) => {
 
 //middleware -
 const logout = asyncHandler(async (req, res) => {
-  User.findByIdAndUpdate(
+  await User.findByIdAndUpdate(
     req.user._id,
     {
       $set: {

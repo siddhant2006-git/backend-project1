@@ -21,7 +21,6 @@ const userSchema = new Schema(
     fullname: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
       index: true,
     },
@@ -74,9 +73,9 @@ userSchema.methods.generateAccessToken = function () {
       email: this.email,
       username: this.username,
     },
-    process.env.Access_token_Secret,
+    process.env.ACCESS_TOKEN_SECRET,
     {
-      expiresIn: process.env.Access_token_expire,
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
     }
   );
 };
@@ -86,9 +85,9 @@ userSchema.methods.generateRefreshToken = function () {
     {
       _id: this._id,
     },
-    process.env.Refresh_token_secret,
+    process.env.REFRESH_TOKEN_SECRET,
     {
-      expiresIn: process.env.Refresh_token_expire,
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
     }
   );
 };
