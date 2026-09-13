@@ -38,6 +38,9 @@ const videoSchema = new Schema({
   },
 });
 
+// plugin - it is extra software which are adding the functionallity of the software .
+// example of plugin - it can add the extention to block the add .
+
 videoSchema.plugin(mongooseAggregatePaginate);
 
 export const Video = mongoose.model("Video", videoSchema);

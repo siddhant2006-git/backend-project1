@@ -21,7 +21,7 @@ const generateAccessTokenandRefreshToken = async (userId) => {
 
 const registerUser = asyncHandler(async (req, res) => {
   const body = Object.fromEntries(
-    Object.entries(req.body).map(([key, value]) => [
+    Object.entries(req.body || {}).map(([key, value]) => [
       key.trim(),
       typeof value === "string" ? value.trim() : value,
     ])
@@ -105,7 +105,7 @@ const loginUser = asyncHandler(async (req, res) => {
   // refresh token - it can work on the long time of period .
   // send cookie .- cookies are  a small piece of data a website can be store in the brower.
 
-  const { email, username, password } = req.body;
+  const { email, username, password } = req.body || {};
 
   if ((!username && !email) || !password) {
     throw new ApiError(400, "username or email and password are required");

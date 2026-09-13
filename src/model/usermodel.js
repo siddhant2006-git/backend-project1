@@ -80,6 +80,8 @@ userSchema.methods.generateAccessToken = function () {
   );
 };
 
+// jwt.sign - to make the the refresh token and accesstoken to generate them .
+
 userSchema.methods.generateRefreshToken = function () {
   return jwt.sign(
     {
