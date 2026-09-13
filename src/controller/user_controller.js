@@ -3,6 +3,10 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../model/usermodel.js";
 import { uploadCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import jwt from "jsonwebtoken";
+
+// ACCESSTOKEN - acesstoken is main used for short time of period
+// refreshToken - refreshtoken is main used to the long time of the period
 
 const generateAccessTokenandRefreshToken = async (userId) => {
   try {
@@ -19,26 +23,31 @@ const generateAccessTokenandRefreshToken = async (userId) => {
   }
 };
 
+// object.fronentity - it is main use to the key value pair convert into the object
+
 const registerUser = asyncHandler(async (req, res) => {
   const body = Object.fromEntries(
-    Object.entries(req.body || {}).map(([key, value]) => [
+    Object.entries(req.body).map(([key, value]) => [
       key.trim(),
       typeof value === "string" ? value.trim() : value,
     ])
   );
-  const { fullname, username, email, password } = body;
 
+  const { fullname, username, email, password } = body;
   // Check required fields
+  // some - means at least one required things can satisfy the condiition
   if ([fullname, email, username, password].some((field) => !field?.trim())) {
     throw new ApiError(400, "All fields are required");
   }
 
   // Check existing user
   const existedUser = await User.findOne({
-    $or: [{ username: username.toLowerCase() }, { email: email.toLowerCase() }],
+    $or: [{ username }, { email }],
   });
 
-  if (existedUser) {
+  console.log("existedUser:", existedUser);
+
+  if (!existedUser) {
     throw new ApiError(409, "User with email or username already exists");
   }
 
@@ -64,6 +73,7 @@ const registerUser = asyncHandler(async (req, res) => {
     const coverImageLocalPath = coverImageFile.path;
 
     coverImageUpload = await uploadCloudinary(coverImageLocalPath);
+    console.log(coverImageUpload);
 
     if (!coverImageUpload?.url) {
       throw new ApiError(400, "Cover image upload failed");
@@ -105,7 +115,7 @@ const loginUser = asyncHandler(async (req, res) => {
   // refresh token - it can work on the long time of period .
   // send cookie .- cookies are  a small piece of data a website can be store in the brower.
 
-  const { email, username, password } = req.body || {};
+  const { email, username, password } = req.body;
 
   if ((!username && !email) || !password) {
     throw new ApiError(400, "username or email and password are required");
@@ -179,6 +189,22 @@ const logout = asyncHandler(async (req, res) => {
     .clearCookie("accessToken", options)
     .clearCookie("refreshToken", options)
     .json(new ApiResponse(200, {}, "User logedOut "));
+});
+
+const refreshAceessToken = asyncHandler(async (req, res) => {
+  const incomingRefreshToken =
+    req.cookies.refreshToken || req.body.refreshToken;
+
+  if (!incomingRefreshToken) {
+    throw new ApiError(401, "unauthorized request ");
+  }
+
+  const decodedToken = jwt.verify(
+    incomingRefreshToken,
+    process.env.REFRESH_TOKEN_SECRET
+  );
+
+  const user = await User.findById(decodedToken?._id);
 });
 
 export { registerUser, loginUser, logout };
