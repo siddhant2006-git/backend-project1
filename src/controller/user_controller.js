@@ -232,4 +232,4 @@ const refreshAceessToken = asyncHandler(async (req, res) => {
     .cookie("refreshToken", refreshToken, options);
 });
 
-export { registerUser, loginUser, logout };
+export { registerUser, loginUser, logout, refreshAceessToken };
