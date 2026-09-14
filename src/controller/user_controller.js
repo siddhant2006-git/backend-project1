@@ -47,7 +47,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
   console.log("existedUser:", existedUser);
 
-  if (!existedUser) {
+  if (existedUser) {
     throw new ApiError(409, "User with email or username already exists");
   }
 
@@ -199,12 +199,37 @@ const refreshAceessToken = asyncHandler(async (req, res) => {
     throw new ApiError(401, "unauthorized request ");
   }
 
-  const decodedToken = jwt.verify(
-    incomingRefreshToken,
-    process.env.REFRESH_TOKEN_SECRET
-  );
+  let decodedToken;
+  try {
+    decodedToken = jwt.verify(
+      incomingRefreshToken,
+      process.env.REFRESH_TOKEN_SECRET
+    );
+  } catch (error) {
+    throw new ApiError(401, error?.message);
+  }
 
   const user = await User.findById(decodedToken?._id);
+
+  if (!user) {
+    throw new ApiError(401, "Invalid refresh token ");
+  }
+
+  if (incomingRefreshToken !== user?.refreshToken) {
+    throw new ApiError(401, "refresh token  is expired ");
+  }
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+  const { accesstoken, refreshToken } =
+    await generateAccessTokenandRefreshToken(user._id);
+
+  return res
+    .status(200)
+    .cookie("accessToken", accesstoken, options)
+    .cookie("refreshToken", refreshToken, options);
 });
 
 export { registerUser, loginUser, logout };
