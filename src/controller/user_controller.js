@@ -23,7 +23,7 @@ const generateAccessTokenandRefreshToken = async (userId) => {
   }
 };
 
-// object.fronentity - it is main use to the key value pair convert into the object
+// object.fromentity - it is main use to the key value pair convert into the object
 
 const registerUser = asyncHandler(async (req, res) => {
   const body = Object.fromEntries(
