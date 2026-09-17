@@ -235,7 +235,7 @@ const refreshAceessToken = asyncHandler(async (req, res) => {
 const changeCurrentPassword = asyncHandler(async (req, res) => {
   const { oldPassword, newPassword } = req.body 
   
-  const user = await User.findById(req.user?.id)
+  const user = await User.findById(req.user?._id)
   const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
   
   if (!isPasswordCorrect) {
@@ -250,6 +250,48 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200,{}, "password is changed successfully  "))
 })
 
-const getcurrentUser=asyncHandler(async)
+const getcurrentUser = asyncHandler(async (req, res) => {
+  
+  
+})
+const updateAccountDetails = asyncHandler(async (req, res) => {
+  const { fullname, email } = req.body
+  
+  if (!fullname || email) {
+    throw new ApiError(400,"all fields are require if fullname & email")
+    
+  }
+  User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        fullname: fullname,
+        email: email
+        
+      }
+    },
+    {new:true}
+  ).select("-password")
 
-export { registerUser, loginUser, logout, refreshAceessToken };
+  return res.status(200)
+  .json(new ApiResponse(200,user,"Account details update successfully"))
+
+})
+const updateUserAvatar = asyncHandler(async (req, res) => {
+  req.files
+  
+
+
+  
+})
+
+
+export {
+  registerUser,
+  loginUser,
+  logout,
+  refreshAceessToken,
+  changeCurrentPassword,
+  getcurrentUser,
+  updateAccountDetails,
+};
