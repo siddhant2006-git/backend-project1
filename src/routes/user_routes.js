@@ -3,7 +3,8 @@ import {
   loginUser,
   logout,
   registerUser,
-  refreshAceessToken
+  refreshAceessToken,
+  updateUserAvatar,
 } from "../controller/user_controller.js";
 import { upload } from "../../middlewares/multers_middleware.js";
 import { verifyJwt } from "../../middlewares/authmiddleware.js";
@@ -31,6 +32,10 @@ router.route("/register").post(
 router.route("/login").post(loginUser);
 
 router.route("/logout").post(verifyJwt, logout);
-router.route("/refresh-token").post(refreshAceessToken)
+router.route("/refresh-token").post(refreshAceessToken);
+
+router
+  .route("/update-avatar")
+  .patch(verifyJwt, upload.single("avatar"), updateUserAvatar);
 
 export default router;
