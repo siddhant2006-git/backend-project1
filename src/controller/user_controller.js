@@ -353,6 +353,24 @@ const updateUserCoverAvatar = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, updatedUser, "cover image can be updated"));
+
+  const getUserChannelProfile = asyncHandler(async (req, res) => {
+    // params - to get the value from the url .
+    // ex - app.get("/users/:id", (req, res) => {
+    // console.log(req.params);
+    // });
+    // o/p - /users/100 100 is value can be return  .
+
+    const { username } = req.params
+
+    if (!params) {
+      throw new ApiError(400,"username is missing ")
+    }
+    // aggregate - 
+
+    User.aggregate([{},{},{}])
+  
+})  
 });
 
 export {
