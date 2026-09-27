@@ -361,16 +361,49 @@ const updateUserCoverAvatar = asyncHandler(async (req, res) => {
     // });
     // o/p - /users/100 100 is value can be return  .
 
-    const { username } = req.params
+    const { username } = req.params;
 
     if (!params) {
-      throw new ApiError(400,"username is missing ")
+      throw new ApiError(400, "username is missing ");
     }
-    // aggregate - 
+    // aggregate - is used to process of document and produce the result them .
 
-    User.aggregate([{},{},{}])
-  
-})  
+    const channel = await User.aggregate([
+      {
+        $match: {
+          username: username?.toLowerCase(),
+        },
+      },
+      {
+        $lookup: {
+          from: "subscription",
+          localField: "_id",
+          foreignField: "channel",
+          as: "subscribers",
+        },
+      },
+      {
+        $lookup: {
+          from: "subscription",
+          localField: "_id",
+          foreignField: "subscribe",
+          as: "subscribersTo",
+        },
+      },
+      {
+        // size - to count the subscribe
+        $addFields: {
+          subscribersCount: {
+            $size: "$subscriber",
+          },
+          channelsSubscribeToCount: {
+            $size: "$subscriberTo",
+          },
+          isSubscribed
+        },
+      },
+    ]);
+  });
 });
 
 export {
