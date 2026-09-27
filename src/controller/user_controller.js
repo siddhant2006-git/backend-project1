@@ -4,6 +4,7 @@ import { User } from "../model/usermodel.js";
 import { deleteFromCloudinary, uploadCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 // ACCESSTOKEN - acesstoken is main used for short time of period
 // refreshToken - refreshtoken is main used to the long time of the period
@@ -14,7 +15,9 @@ const generateAccessTokenandRefreshToken = async (userId) => {
     const accesstoken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
 
+    // refreshToken value = value can be return eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2N...abc123...
     user.refreshToken = refreshToken;
+    console.log(refreshToken);
     await user.save({ validateBeforeSave: false });
 
     return { accesstoken, refreshToken };
@@ -40,6 +43,7 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "All fields are required");
   }
 
+  // or - basicly one condition & two condition can be true .
   // Check existing user
   const existedUser = await User.findOne({
     $or: [{ username }, { email }],
@@ -135,7 +139,7 @@ const loginUser = asyncHandler(async (req, res) => {
   const ispasswordvalid = await user.isPasswordCorrect(password);
 
   if (!ispasswordvalid) {
-    throw new ApiError(401, "password is incoorect");
+    throw new ApiError(401, "password is incorrect");
   }
 
   const { accesstoken, refreshToken } =
@@ -257,6 +261,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
   if (!fullname || !email) {
     throw new ApiError(400, "all fields are require if fullname & email");
   }
+  // findbyIdUpdate - it can be used to the update the value .
   const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
@@ -353,58 +358,110 @@ const updateUserCoverAvatar = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, updatedUser, "cover image can be updated"));
-
-  const getUserChannelProfile = asyncHandler(async (req, res) => {
-    // params - to get the value from the url .
-    // ex - app.get("/users/:id", (req, res) => {
-    // console.log(req.params);
-    // });
-    // o/p - /users/100 100 is value can be return  .
-
-    const { username } = req.params;
-
-    if (!params) {
-      throw new ApiError(400, "username is missing ");
-    }
-    // aggregate - is used to process of document and produce the result them .
-
-    const channel = await User.aggregate([
-      {
-        $match: {
-          username: username?.toLowerCase(),
-        },
-      },
-      {
-        $lookup: {
-          from: "subscription",
-          localField: "_id",
-          foreignField: "channel",
-          as: "subscribers",
-        },
-      },
-      {
-        $lookup: {
-          from: "subscription",
-          localField: "_id",
-          foreignField: "subscribe",
-          as: "subscribersTo",
-        },
-      },
-      {
-        // size - to count the subscribe
-        $addFields: {
-          subscribersCount: {
-            $size: "$subscriber",
-          },
-          channelsSubscribeToCount: {
-            $size: "$subscriberTo",
-          },
-          isSubscribed
-        },
-      },
-    ]);
-  });
 });
+
+const getUserChannelProfile = asyncHandler(async (req, res) => {
+  // params - to get the value from the url .
+  // ex - app.get("/users/:id", (req, res) => {
+  // console.log(req.params);
+  // });
+  // o/p - /users/100 100 is value can be return  .
+
+  const { username } = req.params;
+
+  if (!username) {
+    throw new ApiError(400, "username is missing ");
+  }
+  // aggregate - is used to process of document and produce the result them .
+
+  // match -it can check the data can be same or not .
+  //lookup - it is used to combine the data from one resouce to another .
+  const channel = await User.aggregate([
+    {
+      $match: {
+        username: username.toLowerCase(),
+      },
+    },
+    // how can follower in my channel - it count the user
+    {
+      $lookup: {
+        from: "subscription",
+        localField: "_id",
+        foreignField: "channel",
+        as: "subscribers",
+      },
+    },
+    //how many channel can be subscribe by me - it can count the channel .
+    {
+      $lookup: {
+        from: "subscription",
+        localField: "_id",
+        foreignField: "subscriber",
+        as: "subscribersTo",
+      },
+    },
+    {
+      // size - to count the subscribe
+      $addFields: {
+        subscribersCount: {
+          $size: "$subscribers",
+        },
+        channelsSubscribeToCount: {
+          $size: "$subscribersTo",
+        },
+        // $cond - it can basic work like if-else check the condition .
+        isSubscribed: {
+          $cond: {
+            if: { $in: [req.user?._id, "$subscribers.subscriber"] },
+            then: true,
+            else: false,
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        password: 1,
+        username: 1,
+        fullname: 1,
+        email:1,
+        subscribers: 1,
+        subscribersTo: 1
+      },
+    },
+  ]);
+  if (!channel?.length) {
+    throw new  ApiError(404,"channel doesnot access")
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, channel[0], "Channel profile fetched successfully")
+    );
+});
+const getWatchHistory = asyncHandler(async (req, res) => {
+  const user = await User.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(req.user._id)
+        
+      },
+      {
+        $lookup: {
+          from: "videos",
+          localField: "watchHistory",
+          foreignField: "_id",
+          as: "Watch history"
+          
+          
+        }
+      }
+
+    }
+  ])
+})
+
 
 export {
   registerUser,
@@ -416,4 +473,5 @@ export {
   updateAccountDetails,
   updateUserAvatar,
   updateUserCoverAvatar,
+  getUserChannelProfile,
 };
