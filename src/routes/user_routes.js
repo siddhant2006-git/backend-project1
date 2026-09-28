@@ -47,6 +47,7 @@ router.route("/update-account").patch(verifyJwt,)
 router.route("/Avatar").patch(verifyJwt, upload.single("avatar"), updateUserAvatar)
 router.route("/cover-image").patch(verifyJwt,upload.single("coverimage"),updateUserCoverAvatar)
 router
+  // router - it is main use to  route the data 
   .route("/update-avatar")
   .patch(verifyJwt, upload.single("avatar"), updateAccountDetails);
 router.route("/c/:username").get(verifyJwt, getUserChannelProfile)
