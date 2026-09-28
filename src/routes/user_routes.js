@@ -4,7 +4,13 @@ import {
   logout,
   registerUser,
   refreshAceessToken,
+  changeCurrentPassword,
+  getcurrentUser,
+  updateAccountDetails,
   updateUserAvatar,
+  updateUserCoverAvatar,
+  getUserChannelProfile,
+  getWatchHistory,
 } from "../controller/user_controller.js";
 import { upload } from "../../middlewares/multers_middleware.js";
 import { verifyJwt } from "../../middlewares/authmiddleware.js";
@@ -31,11 +37,20 @@ router.route("/register").post(
 
 router.route("/login").post(loginUser);
 
+// patch - is used for partial update the value .
+
 router.route("/logout").post(verifyJwt, logout);
 router.route("/refresh-token").post(refreshAceessToken);
-
+router.route("/change-password").post(verifyJwt, changeCurrentPassword)
+router.route("/current-user").get(verifyJwt, getcurrentUser)
+router.route("/update-account").patch(verifyJwt,)
+router.route("/Avatar").patch(verifyJwt, upload.single("avatar"), updateUserAvatar)
+router.route("/cover-image").patch(verifyJwt,upload.single("coverimage"),updateUserCoverAvatar)
 router
   .route("/update-avatar")
-  .patch(verifyJwt, upload.single("avatar"), updateUserAvatar);
+  .patch(verifyJwt, upload.single("avatar"), updateAccountDetails);
+router.route("/c/:username").get(verifyJwt, getUserChannelProfile)
+  
+router.route("/c/:watch-history").get(verifyJwt,getWatchHistory)
 
 export default router;
