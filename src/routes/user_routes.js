@@ -16,6 +16,7 @@ import {
 } from "../controller/user_controller.js";
 import { upload } from "../../middlewares/multers_middleware.js";
 import { verifyJwt } from "../../middlewares/authmiddleware.js";
+import { Tweet } from "../model/tweets.js";
 
 const router = Router();
 
@@ -49,9 +50,11 @@ router
 router
   .route("/cover-image")
   .patch(verifyJwt, upload.single("coverImage"), updateUserCoverAvatar);
-router.route("/tweets").post(verifyJwt, createTweet);
+router.route("/create-tweets").post(verifyJwt, createTweet);
 router.route("/tweets").get(verifyJwt, getUserTweets);
 router.route("/c/:username").get(verifyJwt, getUserChannelProfile);
 router.route("/watch-history").get(verifyJwt, getWatchHistory);
+
+
 
 export default router;

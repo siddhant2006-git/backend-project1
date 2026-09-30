@@ -508,8 +508,11 @@ const createTweet = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, tweet, "Tweet created successfully"));
 });
 
+// populate - it is basically used for the refrence of object
+// without populate - it can find the username and id .
 const getUserTweets = asyncHandler(async (req, res) => {
   const tweets = await Tweet.find({ owner: req.user._id })
+    .find()
     .populate("owner", "username fullname avatar")
     .sort({ createdAt: -1 });
 
