@@ -11,6 +11,8 @@ import {
   updateUserCoverAvatar,
   getUserChannelProfile,
   getWatchHistory,
+  createTweet,
+  getUserTweets,
 } from "../controller/user_controller.js";
 import { upload } from "../../middlewares/multers_middleware.js";
 import { verifyJwt } from "../../middlewares/authmiddleware.js";
@@ -36,22 +38,20 @@ router.route("/register").post(
 );
 
 router.route("/login").post(loginUser);
-
-// patch - is used for partial update the value .
-
 router.route("/logout").post(verifyJwt, logout);
 router.route("/refresh-token").post(refreshAceessToken);
-router.route("/change-password").post(verifyJwt, changeCurrentPassword)
-router.route("/current-user").get(verifyJwt, getcurrentUser)
-router.route("/update-account").patch(verifyJwt,)
-router.route("/Avatar").patch(verifyJwt, upload.single("avatar"), updateUserAvatar)
-router.route("/cover-image").patch(verifyJwt,upload.single("coverimage"),updateUserCoverAvatar)
+router.route("/change-password").post(verifyJwt, changeCurrentPassword);
+router.route("/current-user").get(verifyJwt, getcurrentUser);
+router.route("/update-account").patch(verifyJwt, updateAccountDetails);
 router
-  // router - it is main use to  route the data 
-  .route("/update-avatar")
-  .patch(verifyJwt, upload.single("avatar"), updateAccountDetails);
-router.route("/c/:username").get(verifyJwt, getUserChannelProfile)
-  
-router.route("/c/:watch-history").get(verifyJwt,getWatchHistory)
+  .route("/avatar")
+  .patch(verifyJwt, upload.single("avatar"), updateUserAvatar);
+router
+  .route("/cover-image")
+  .patch(verifyJwt, upload.single("coverImage"), updateUserCoverAvatar);
+router.route("/tweets").post(verifyJwt, createTweet);
+router.route("/tweets").get(verifyJwt, getUserTweets);
+router.route("/c/:username").get(verifyJwt, getUserChannelProfile);
+router.route("/watch-history").get(verifyJwt, getWatchHistory);
 
 export default router;

@@ -1,6 +1,7 @@
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../model/usermodel.js";
+import { Tweet } from "../model/tweets.js";
 import { deleteFromCloudinary, uploadCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
@@ -37,11 +38,18 @@ const registerUser = asyncHandler(async (req, res) => {
   );
 
   const { fullname, username, email, password } = body;
+  const avatarFile = req.files?.avatar?.[0];
+
   // Check required fields
   // some - means at least one required things can satisfy the condiition
   if ([fullname, email, username, password].some((field) => !field?.trim())) {
     throw new ApiError(400, "All fields are required");
   }
+
+  if (!avatarFile?.path) {
+    throw new ApiError(400, "Avatar file is required");
+  }
+
   const avatarUpload = await uploadCloudinary(avatarFile.path);
 
   if (!avatarUpload?.url) {
@@ -449,13 +457,12 @@ const getWatchHistory = asyncHandler(async (req, res) => {
                     username: 1,
                     avatar: 1,
                   },
-                  
-                    $addFields: {
-                      owner: {
-                        $first:"$owner"
-                      
-                    }
-                  }
+
+                  $addFields: {
+                    owner: {
+                      $first: "$owner",
+                    },
+                  },
                 },
               ],
             },
@@ -482,8 +489,33 @@ const getWatchHistory = asyncHandler(async (req, res) => {
         user[0]?.watchHistory || [],
         "Watch history fetched successfully"
       )
-  );
-  
+    );
+});
+const createTweet = asyncHandler(async (req, res) => {
+  const { content } = req.body;
+
+  if (!content?.trim()) {
+    throw new ApiError(400, "Tweet content is required");
+  }
+
+  const tweet = await Tweet.create({
+    content:string,
+    owner: req.user._id,
+  });
+
+  return res
+    .status(201)
+    .json(new ApiResponse(201, tweet, "Tweet created successfully"));
+});
+
+const getUserTweets = asyncHandler(async (req, res) => {
+  const tweets = await Tweet.find({ owner: req.user._id })
+    .populate("owner", "username fullname avatar")
+    .sort({ createdAt: -1 });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, tweets, "Tweets fetched successfully"));
 });
 
 export {
@@ -498,4 +530,6 @@ export {
   updateUserCoverAvatar,
   getUserChannelProfile,
   getWatchHistory,
+  createTweet,
+  getUserTweets,
 };
