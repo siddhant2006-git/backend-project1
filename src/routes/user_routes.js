@@ -13,16 +13,14 @@ import {
   getWatchHistory,
   createTweet,
   getUserTweets,
+  createComment,
+  getComment,
+  deleteComment,
 } from "../controller/user_controller.js";
 import { upload } from "../../middlewares/multers_middleware.js";
 import { verifyJwt } from "../../middlewares/authmiddleware.js";
-import { Tweet } from "../model/tweets.js";
 
 const router = Router();
-
-// segregate - divide karna
-// post - to send the new data from the server and create to them .
-// field - it is method of multer which are used to the on request to the multiple different field name for access .
 
 router.route("/register").post(
   upload.fields([
@@ -54,7 +52,10 @@ router.route("/create-tweets").post(verifyJwt, createTweet);
 router.route("/tweets").get(verifyJwt, getUserTweets);
 router.route("/c/:username").get(verifyJwt, getUserChannelProfile);
 router.route("/watch-history").get(verifyJwt, getWatchHistory);
-
-
+router
+  .route("/comment-message")
+  .post(verifyJwt, createComment)
+  .get(verifyJwt, getComment);
+router.route("/comment-message/:commentId").delete(verifyJwt, deleteComment);
 
 export default router;
