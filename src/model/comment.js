@@ -18,10 +18,9 @@ const commentSchema = new Schema(
       required: true,
       trim: true,
     },
-    Vidio: {
+    video: {
       type: Schema.Types.ObjectId,
-      refs:"Vidio"
-      
+      ref: "Video",
     },
     mediaType: {
       type: String,
@@ -38,8 +37,6 @@ const commentSchema = new Schema(
   }
 );
 
-// it can used to share those comment which are required to the user .
 commentSchema.plugin(mongooseAggregatePaginate);
-
 
 export const Comment = mongoose.model("Comment", commentSchema);

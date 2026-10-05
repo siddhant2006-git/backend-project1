@@ -1,4 +1,4 @@
-import mongoose, { mongo, Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const videoSchema = new Schema({
@@ -9,7 +9,7 @@ const videoSchema = new Schema({
 
   thumbnail: {
     type: String,
-    required: true,
+    default: "",
   },
   title: {
     type: String,
@@ -36,7 +36,7 @@ const videoSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "User",
   },
-});
+}, { timestamps: true });
 
 // plugin - it is extra software which are adding the functionallity of the software .
 // example of plugin - it can add the extention to block the add .
